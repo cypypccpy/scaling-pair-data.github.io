@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Scaling Pair Data for Post-Training</title>
+  <title>Scaling Pair Data for Embodied Intelligence</title>
   <meta
     name="description"
-    content="一篇关于只使用人类数据进行机器人后训练，以及通过 Scaling Pair Data 打通人手数据与机器人数据的研究笔记。"
+    content="Psi-R2.5 从数据维度分享具身智能的最新进展，介绍如何通过 Scaling Pair Data 提升人类数据质量。"
   >
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
     rel="stylesheet"
   >
   <link rel="stylesheet" href="./styles.css">
@@ -19,18 +19,17 @@
 <body>
   <div class="page-shell">
     <header class="site-header">
-      <a class="brand" href="#top">Research / Pair Data</a>
-      <nav class="header-links" aria-label="Page navigation">
+      <a class="brand" href="#top">Psi Robotics / Research</a>
+      <nav class="header-links" aria-label="页面导航">
         <a href="#intro">Intro</a>
-        <a href="#why">Why</a>
-        <a href="#how">Method</a>
-        <a href="#pair-data">Pair Data</a>
-        <a href="#future">Future</a>
+        <a href="#r25">Psi-R2.5</a>
+        <a href="#pair-data">Scaling Pair Data</a>
+        <a href="#icl">In-Context Learning</a>
       </nav>
     </header>
 
     <main id="top" class="layout">
-      <aside class="toc-shell" aria-label="Table of contents">
+      <aside class="toc-shell" aria-label="文章目录">
         <div class="toc-card">
           <div class="toc-label">On this page</div>
           <nav id="toc" class="toc"></nav>
@@ -38,44 +37,31 @@
       </aside>
 
       <article class="article">
-        <section class="hero">
+        <section class="hero" id="intro" data-toc="Intro">
           <div class="hero-heading">
-            <p class="eyebrow">Research Note</p>
-            <h1>Scaling Pair Data for Post-Training</h1>
+            <p class="eyebrow">Psi Robotics / Research Note</p>
+            <h1>Scaling Pair Data for Embodied Intelligence</h1>
           </div>
 
           <div class="hero-copy">
-            <p class="hero-subtitle">The hand is the instrument of instruments. — Leonardo da Vinci</p>
-
-            <div class="lang-switch" aria-label="Language toggle">
-              <button class="lang-pill is-active js-lang-toggle" type="button" data-target-lang="zh">
-                中文
-              </button>
-              <button class="lang-pill js-lang-toggle" type="button" data-target-lang="en">
-                English
-              </button>
+            <p class="hero-subtitle">The hand is the instrument of instruments. &mdash; Leonardo da Vinci</p>
+            <div class="lang-switch" role="group" aria-label="Language / 语言">
+              <button class="lang-pill is-active js-lang-toggle" type="button" data-target-lang="zh" aria-pressed="true">中文</button>
+              <button class="lang-pill js-lang-toggle" type="button" data-target-lang="en" aria-pressed="false">English</button>
             </div>
-
-            <div class="lang-panel is-active" data-lang="zh">
-              <p class="hero-lead">
-                长期以来，大家都认为人类数据的质量比真机数据差不少，因此只将其用作预训练。只利用人类数据、不用任何真机数据，一般认为难以训练出复杂灵巧操作模型。我们通过大规模数据预训练的世界模型，找到了一种新的 scaling 范式：scaling pair data，成功地解决了这个问题。
-              </p>
-            </div>
-            <div class="lang-panel" data-lang="en">
-              <p class="hero-lead">
-                Human data has long been considered substantially lower quality than real-robot data, and therefore has mostly been used only for pre-training. Training complex dexterous manipulation models using human data alone, without any real-robot data, has generally been viewed as impractical. With a world model pre-trained at large scale, we identify a new scaling paradigm, scaling pair data, that makes human-only post-training possible.
-              </p>
-            </div>
+            <p class="hero-lead" data-i18n="hero-lead">
+              数据对于具身是一个非常重要的部分，但是怎么 scaling 数据，需要 scaling 什么样的数据，仍然是一个值得探究的问题。我们新发布 Psi-R2.5 模型，通过对人类数据的不断清洗和优化，明确了我们需要什么样的数据和相关属性，对模型训练有了一些新的理解。下面从数据的角度给大家分享一下最近的进展。
+            </p>
 
             <div class="hero-actions">
-              <a class="button button-primary" href="#intro">Read More</a>
+              <a class="button button-primary" href="#r25" data-i18n="read">开始阅读</a>
               <button
                 class="button button-secondary js-open-video"
                 type="button"
-                data-video-src="./assets/videos/teaser.mp4"
-                data-video-title="Hero Demo"
+                data-video-src="./assets/videos/teaser-postrl-4x3.mp4"
+                data-video-title="已有演示"
               >
-                Play Hero Demo
+                <span data-i18n="watch">查看已有演示</span>
               </button>
             </div>
           </div>
@@ -83,257 +69,593 @@
           <div class="hero-media">
             <div class="hero-video-frame">
               <video class="hero-video" autoplay muted loop playsinline preload="metadata">
-                <source src="./assets/videos/teaser.mp4" type="video/mp4">
+                <source src="./assets/videos/teaser-postrl-4x3.mp4" type="video/mp4">
               </video>
               <button
                 class="hero-play js-open-video"
                 type="button"
-                data-video-src="./assets/videos/teaser.mp4"
-                data-video-title="Hero Demo"
-                aria-label="Open hero video"
+                data-video-src="./assets/videos/teaser-postrl-4x3.mp4"
+                data-video-title="已有演示"
+                aria-label="打开已有演示"
               >
-                Play
+                <span data-i18n="play">播放</span>
               </button>
             </div>
           </div>
         </section>
 
-        <section class="content-block" id="intro" data-toc="Intro">
-          <div class="lang-panel is-active" data-lang="zh">
-            <p class="kicker">Introduction</p>
-            <h2>The Beginning of Human Data Post-Training</h2>
-            <p>
-              最近，人类数据成为了大多数人的研究对象。但是，大多数人的研究都 focus 在如何拿 ego data 作为预训练的数据，然后辅以真机数据作为后训练。这些研究都有价值，但是，人类数据用于后训练一直没有被充分探索。
-            </p>
-            <p>
-              这源于大家的一个固有印象：人类数据的质量比较低，无法用于真实机器人的训练。这是由于 embodiment gap 的存在，加上操作是一个非常 dynamic 的任务，一点偏差都容易使任务失败。
-            </p>
-          </div>
+        <section class="content-block" id="r25" data-toc="Psi-R2.5">
+          <div class="section-copy">
+          <p class="kicker">Chapter 1</p>
+          <h2>1. Psi-R2.5: Scaling Quality, Not Just Size</h2>
+          <figure class="architecture-figure">
+            <img
+              class="architecture-embed"
+              src="./assets/diagrams/psi-r25-architecture.svg"
+              alt="Psi-R2.5 双层架构：高层规划器（Vision Language Model）向低层控制器（World Action Model）传递 Subtext 与 Value，控制器通过 Action 与环境交互，并接收 Feedback 持续改进。"
+            >
+            <figcaption data-i18n="diagram-caption">Psi-R2.5 双层架构：高层规划器（Vision Language Model）向低层控制器（World Action Model）传递 Subtext 与 Value，控制器通过 Action 与环境交互，并接收 Feedback 持续改进。</figcaption>
+          </figure>
+          <p>
+            我们最新一代的 R2.5 模型采用双层架构，上层作为大脑进行长程任务拆解，将一段长的 instruction 拆解成对应的 subtask，再将其和当前观测输入进下层模型中，输出机器人具体的操作轨迹。我们的上层模型的网络骨干为 QwenVL3.5-4B，下层为 Wan2.2-IT2V-5B，通过同一批预训练数据进行训练。
+          </p>
+          <p>
+            相比上一代 R2 模型，我们这一代 2.5 主要的核心改变在于数据的质量提升和属性的压缩。在达到 10W 小时后，我们对全部数据进行了一个大的 review，而不是一味地堆量。我们在数据侧做了很多数据信息量的压缩，同时将人类数据到机器人数据的转换通过 scaling 大量的强 pair data 进行提升，并优化了数据质量的定性和定量分析。
+          </p>
+          <p>
+            同时，对于评测，我们在模型大小脑训练的过程中就将仿真测评引入，将一小部分仿真数据作为预训练的一部分任务加入进去，并在仿真器中直接进行评测。为了衡量基模的能力，我们设定了一个 50 个复杂任务的多任务真机评测集，并在测评时一直随机化各个任务的初始状态，希望能给组合泛化提供一个优质的测评方案。
+          </p>
 
-          <div class="lang-panel" data-lang="en">
-            <p class="kicker">Introduction</p>
-            <h2>The Beginning of Human Data Post-Training</h2>
-            <p>
-              Human data has recently become a central object of study for many researchers. Most work, however, still focuses on using ego-centric human data for pre-training and then relying on real-robot data for post-training. These studies are valuable, but the use of human data for post-training remains underexplored.
-            </p>
-            <p>
-              This comes from a common assumption: human data is considered low quality and unsuitable for training real robots. The reason is the embodiment gap. Manipulation is also an extremely dynamic task, where even a small deviation can cause failure.
-            </p>
-          </div>
-        </section>
+          <figure class="media-block" id="multitask-evaluation">
+            <video
+              class="evaluation-video"
+              autoplay
+              muted
+              loop
+              controls
+              playsinline
+              preload="metadata"
+              aria-labelledby="multitask-caption"
+            >
+              <source src="./assets/videos/multitask-evaluation.mp4" type="video/mp4">
+            </video>
+            <figcaption class="media-caption" id="multitask-caption" data-i18n="multitask-caption">Psi-R2.5 多任务评测效果</figcaption>
+          </figure>
 
-        <section class="content-block" id="why" data-toc="Why Human-Data-Only Post-Training">
-          <div class="lang-panel is-active" data-lang="zh">
-            <p class="kicker">Chapter 1</p>
-            <h2>Why Study Human-Data-Only Post-Training</h2>
-            <p>
-              长期以来，人类数据被认为只能用于预训练。大多数研究这方面的工作会先用人类数据进行大规模预训练，接着使用真机数据进行后训练来完成任务。但是，给我的感觉有点像这和当时做很多 Zero-Shot Sim2Real 工作的理由是一样的。很多时候做 Zero-Shot 而不是 Few-Shot 的原因，是为了验证仿真的有效性。如果纯用仿真数据训练出的模型效果不好，大概率这个数据质量或者仿真器参数是有问题的。
-            </p>
-            <p>
-              所以人类数据也是一样的，能直接训练出模型的人类数据，才是质量最高的人类数据。它能直接带来两种收益：一是在部署场景中可以让机器人看人类操作即能学会任务，而不需要再遥操作收集数据。想象一下，在你的家里，一个万能的、啥都能做的机器人是非常困难的；但是一个看一遍你怎么做然后就能学会的机器人，对于模型能力来说是更容易达到的，前提是可以直接用人类的数据来微调模型。
-            </p>
-            <p>
-              但是，第二个收益才是最重要的，就是提高人类数据预训练的质量。人类数据的治理是一个非常难的课题，纯粹看小时数几乎毫无意义，十万小时低质量数据，对预训练的作用可能还不如 1000 小时高质量的数据。而什么样的人类数据质量最高？毫无疑问，能直接训练出复杂灵巧操作模型的数据质量最高。因此，研究人类数据后训练对于数据治理本身来说也起到非常重要的指导意义。
-            </p>
-          </div>
+          <p>
+            大家基本都已经清楚，对于具身预训练模型来说，模型架构是最不重要的，两三天就能换一个，决定性影响性能的是数据。具身数据的糟糕程度是其他领域很难想象的。直接将所有数据往模型里面一塞，出来的效果基本相当于我们先训了一个分类器：模型先区分这到底是人类数据还是真机数据，然后再走相应的参数。这就回到了我们用人类数据最核心的点，是怎么让模型把人类数据按机器人数据进行理解。
+          </p>
+          <p>
+            我们在 R2.5 上的提升主要在两点：一是使用强 pair data 对人类数据和机器人数据进行对齐，二是在语言层面上对数据标注的精度提出更高的要求。在不少工作中，大家会将一些人类和机器人做类似任务，比如都拿同一瓶可乐，这种对应的数据专门标记起来，一起输入进模型里面用作模型训练，希望能学到一些人类数据和机器人数据的对应关系。这种数据我们将其叫做 pair data。
+          </p>
+          <p>
+            在我们四月发布的 R2 和 W0 中，我们通过在世界模型中做强化学习的方式，可以将人类数据显式转换成对应的机器人数据。这一套流程可以产出带 action、直接能 replay 成功的机器人数据，但是整体流程比较复杂。我们把这种图像上除了本体外其他基本一致、时序上每一帧都能对应上，同时 action 能直接在机器人上 replay 出来的 pair data 叫做强 pair data；而一些只是按照相同任务语义收集的数据叫做弱 pair data。这种强 pair data 本质上是将人类数据的 dynamic 拉到和机器人数据的 dynamic 一个 domain 里面，并且具备可拓展性。
+          </p>
+          <p>
+            为了更高效地生产这种强 pair data，我们在通过 R2 和 W0 生成了很多高质量的强 pair data 之后，直接训练了一个端到端的数据转换模型，可以实现人类数据和机器人数据的强 pair 直接映射。以往几乎很难采集到高质量的强 pair 数据，基本都是弱 pair 数据，因此无法直接这么对齐。具体的实现方法在后面的章节会有详细介绍。
+          </p>
+          <p>
+            除了 pair data 以外，还有一个重要的数据属性是语言的标注精度。我们所有的数据都通过 Autolabeling 数据管线进行标注，将每一个分解的原子任务都标注到尽量细致的程度。同时，我们对任务的多样性提出了非常高的要求。我们尽可能地将单个任务的数据量减少，然后通过运维的方法来保证任务的多样性。
+          </p>
+          <p>
+            很多时候，所谓的数据量很难衡量数据的信息量。试想一下，假设有 10000 小时数据、100 个任务、每个任务 100 小时，它的信息量可能和 100 小时数据、100 个任务、每个任务 1 小时一样。因此，我们会严格压缩同样小时数里面的数据量，尽可能地采集更多的任务，然后在标注阶段对各项原子动作进行精细的标注和审核，保障数据质量。
+          </p>
 
-          <div class="lang-panel" data-lang="en">
-            <p class="kicker">Chapter 1</p>
-            <h2>Why Study Human-Data-Only Post-Training</h2>
-            <p>
-              For a long time, human data has been viewed as useful only for pre-training. Most work in this direction first conducts large-scale pre-training on human data, and then uses real-robot data for post-training to solve tasks. To me, this resembles the motivation behind many Zero-Shot Sim2Real studies. A key reason to pursue zero-shot rather than few-shot transfer is to verify the validity of the simulator. If a model trained purely in simulation performs poorly, then the data quality or simulator parameters are probably wrong.
-            </p>
-            <p>
-              Human data should be viewed in the same way. Human data that can directly train a model is the highest-quality human data. It brings two benefits. First, in deployment scenarios, a robot could learn a task by watching a human perform it, without requiring new teleoperation data. A universal robot that can do everything in your home is extremely hard, but a robot that can watch you do something once and then learn it is a more reachable capability, provided that human data can be used directly for model fine-tuning.
-            </p>
-            <p>
-              The second benefit is even more important: improving the quality of human data used for pre-training. Human data governance is a difficult problem, and simply counting hours is almost meaningless. One hundred thousand hours of low-quality data may contribute less than one thousand hours of high-quality data. What kind of human data has the highest quality? Clearly, the kind that can directly train complex dexterous manipulation models. Therefore, studying human-data post-training is also an important guide for human data governance itself.
-            </p>
-          </div>
-        </section>
-
-        <section class="content-block" id="how" data-toc="Training with Human Data Only">
-          <div class="lang-panel is-active" data-lang="zh">
-            <p class="kicker">Chapter 2</p>
-            <h2>How to Train with Human Data Only</h2>
-            <p>
-              虽然是少数，但是学术界也已经慢慢有相关的研究出现。和 sim2real gap 类似，只使用人类数据进行训练的 embodiment gap 也可以拆分成两个具体的 gap：
-            </p>
-            <ul class="gap-list">
-              <li>
-                <strong>Visual Embodiment Gap</strong>
-                <span>人类数据无论是戴着手套，还是裸手，视觉上都会和机器人推理时差得比较大。这里的差异不只是视频里人手和机器人像素上的差别，还包括相机参数、环境变化等。</span>
-              </li>
-              <li>
-                <strong>Dynamic Embodiment Gap</strong>
-                <span>人类数据是用人手对物体进行操作，action 通常是通过设备或者视觉算法来获得。它和直接的机器人数据会有三层误差：手部姿态估计的传感器或视觉估计误差；人手和机器人关节不一样的误差；以及人手物理参数和机器人物理参数的误差，例如手的摩擦力和机器人的摩擦力不一样。</span>
-              </li>
-            </ul>
-            <p>
-              所有纯人类数据训练方案基本都是围绕怎么解决上面两个问题出发的。大部分方案可以总结为对人类数据进行 real2sim 重建到仿真器中，通过轨迹优化或强化学习等方法解决 Dynamic Embodiment Gap，然后直接 sim2real。这套方案最早是很多 Sim2Real 工作的延伸，问题有两个：一是 real2sim 技术本身也比较难 scale up；二是还是会面临 sim2real gap 的问题。
-            </p>
-            <p>
-              还有的工作不走在仿真器中训练模型然后 sim2real 的路线，而是将仿真器用来做类似数据处理的方法来解决 Embodiment Gap。对于 Visual Embodiment Gap，一般的做法是先分割，再 inpainting，然后再把渲染的机器人贴上去。对于 Dynamic Embodiment Gap，类似上面的方法用轨迹优化或强化学习进行处理，最后得到更好的数据来训练一个 policy。
-            </p>
-            <p>
-              这套方案最主要的区别还是训的是一个 visuomotor 的 policy，但是同样会面临两个问题：real2sim 技术本身难 scale up；图像 inpainting 这一套视觉处理管线有天生缺陷，很难处理复杂关系，例如遮挡等。因此，这个方向基本长期只能做一些比较简单且定制化的任务，以致于很多人认为纯靠人类数据无法训练出操作比较复杂的模型。
-            </p>
-            <p>
-              我们团队研究这个方向非常久，基本上市面上的所有方法我们都尝试过。最后我们通过用世界模型代替仿真器的方式，通过十万小时规模的人类数据进行预训练，我们的 Psi-W0 可以代替上面方法中仿真器的作用，通过在仿真器里做强化学习的方式，将一条人手轨迹优化成可执行的机器人轨迹，完成人手数据到机器人数据的转换。
-            </p>
-            <p>
-              本质上这一套方案还是沿用了之前的思想，只不过用世界模型来代替了传统的仿真器，好处是上面的各种 sim2real 和难以 scale up 的问题都绕过去了。到这算是解决了一部分问题，但接下来这一套方案会比较重，又需要 Policy 和 World Model 相互 rollout，又需要强化学习做微调。
-            </p>
-            <p>
-              后来我在思考，这一套，包括之前的方法麻烦在于本质上是因为：对于一条已有的人类数据，我们需要凭空造出与其对应的机器人数据，所以才需要各种强化学习、轨迹优化之类的方法来减少 embodiment gap。但是反过来想，为什么不能从已有的机器人数据出发，造出对应的人类数据呢？机器人数据无论是 visual 还是 dynamic，都是可以直接用的。
-            </p>
-            <p>
-              如果我们能获得大量和真机数据匹配的人类数据，然后训练一个模型，输入是人手的数据，输出是匹配的机器人图像和 action，就可以直接做到纯使用人类数据训练模型。这种人手和机械手匹配的数据，我们叫 pair data。因此，继去年 scaling robot data、今年 scaling human data 后，我们提出了一种新的 scaling 范式：scaling pair data。
-            </p>
-          </div>
-
-          <div class="lang-panel" data-lang="en">
-            <p class="kicker">Chapter 2</p>
-            <h2>How to Train with Human Data Only</h2>
-            <p>
-              Although still limited in number, related studies are gradually emerging in academia. Similar to the sim2real gap, the embodiment gap in human-only training can be decomposed into two concrete gaps:
-            </p>
-            <ul class="gap-list">
-              <li>
-                <strong>Visual Embodiment Gap</strong>
-                <span>Human data, whether collected with gloves or bare hands, looks very different from the visual observations seen by a robot at inference time. The difference is not only the pixels of human hands versus robot hands, but also camera parameters, environment changes, and other visual factors.</span>
-              </li>
-              <li>
-                <strong>Dynamic Embodiment Gap</strong>
-                <span>Human data is generated by human hands manipulating objects, and actions are usually obtained through devices or vision algorithms. Compared with direct robot data, it contains three layers of error: sensing or visual estimation error in hand pose, mismatch between human and robot joint structures, and mismatch between human and robot physical parameters, such as hand friction versus robot friction.</span>
-              </li>
-            </ul>
-            <p>
-              Almost all human-only training methods revolve around solving these two problems. Most approaches can be summarized as reconstructing human data into a simulator through real2sim, using trajectory optimization or reinforcement learning to address the Dynamic Embodiment Gap, and then performing sim2real transfer. This line of work originated from many Sim2Real methods, but it has two problems: real2sim itself is hard to scale, and the system still faces the sim2real gap.
-            </p>
-            <p>
-              Other work does not train the model inside simulation and then transfer it to the real world. Instead, it uses the simulator as a data-processing tool to reduce the Embodiment Gap. For the Visual Embodiment Gap, a common pipeline is segmentation, inpainting, and then compositing a rendered robot into the image. For the Dynamic Embodiment Gap, similar methods use trajectory optimization or reinforcement learning to process the action data, and then train a better policy.
-            </p>
-            <p>
-              The key difference is that this still trains a visuomotor policy. It faces the same two limitations: real2sim is difficult to scale, and image inpainting pipelines have inherent weaknesses, especially for complex relationships such as occlusion. As a result, this direction has long been limited to relatively simple and customized tasks, which is why many people believe human data alone cannot train models for complex manipulation.
-            </p>
-            <p>
-              Our team has studied this direction for a long time, and we have tried essentially every method available in the field. Eventually, by replacing the simulator with a world model and pre-training on human data at the 100,000-hour scale, our Psi-W0 can take the role of the simulator in the methods above. It can optimize a human-hand trajectory into an executable robot trajectory through reinforcement learning inside the world model, completing the conversion from human data to robot data.
-            </p>
-            <p>
-              Conceptually, this still follows the previous paradigm, except that the traditional simulator is replaced by a world model. The benefit is that it avoids many sim2real and scalability problems. This solves part of the problem, but the pipeline remains heavy: the Policy and World Model must roll out with each other, and reinforcement learning is still needed for fine-tuning.
-            </p>
-            <p>
-              Later, I started thinking from the opposite direction. The difficulty of these methods comes from one fact: given an existing human trajectory, we need to create its corresponding robot trajectory from scratch, so we need reinforcement learning or trajectory optimization to reduce the embodiment gap. But why not start from existing robot data and generate its corresponding human data instead? Robot data is directly usable in both visual and dynamic forms.
-            </p>
-            <p>
-              If we can obtain large amounts of human data paired with real-robot data, then train a model whose input is human-hand data and whose output is the matched robot image and action, we can train models using human data alone. We call this matched human-hand and robot-hand data pair data. Therefore, after scaling robot data last year and scaling human data this year, we propose a new scaling paradigm: scaling pair data.
-            </p>
-          </div>
-        </section>
-
-        <section class="content-block" id="pair-data" data-toc="Scaling Pair Data">
-          <div class="lang-panel is-active" data-lang="zh">
-            <p class="kicker">Chapter 3</p>
-            <h2>Scaling Pair Data</h2>
-            <p>
-              将人手和机器人的 pair data 用于模型训练不是一个新鲜话题。很多预训练相关的工作都说明，将一些人类和机器人做类似动作的数据挑出来针对性训练，对模型理解人类数据和机器人数据混合训练会有帮助。但是这部分大多数都是用类似 retrieval 的方法从大量数据中检索出最类似的动作，不是完全 pair 的数据。而使用类似图像 inpainting 再从仿真中贴图上去的这种数据，碰撞关系和复杂遮挡容易失真还在其次，最主要的是这种数据的 action 还是来自于人类数据，会存在 dynamic embodiment gap。
-            </p>
-            <p>
-              想通了上面的逆向思维后，我们逆向使用 Psi-W0，从真正的机器人数据出发逆向生成对应的人手数据，产生大量高质量的 pair data。
-            </p>
-
-            <div class="media-block">
-              <div
-                class="video-carousel"
-                data-video-carousel
-                data-video-base="./assets/videos/pair"
-                data-video-count="6"
-                tabindex="0"
-                aria-label="Pair data video carousel"
-              ></div>
-              <p class="media-caption">高质量机器手和人手配对视频。</p>
+          <figure class="media-block pair-comparison" id="pair-comparison" aria-labelledby="pair-comparison-caption">
+            <div class="pair-comparison-grid">
+              <figure class="pair-card pair-card-weak">
+                <figcaption class="pair-card-heading">
+                  <h3 data-i18n="weak-pair-title">弱 Pair Data</h3>
+                  <p class="pair-description" data-i18n="weak-pair-description">基于相同任务语义配对</p>
+                </figcaption>
+                <div class="pair-view-labels" aria-hidden="true">
+                  <span data-i18n="pair-human">人类数据</span>
+                  <span data-i18n="pair-robot">机器人数据</span>
+                </div>
+                <button
+                  class="pair-video-card js-open-video"
+                  type="button"
+                  data-video-src="./assets/videos/pair-comparison/weak-pair-updated.mp4"
+                  data-video-title-zh="弱 Pair Data"
+                  data-video-title-en="Weak Pair Data"
+                  aria-label="放大查看：弱 Pair Data"
+                  aria-haspopup="dialog"
+                >
+                  <video autoplay muted loop playsinline preload="metadata" tabindex="-1" aria-hidden="true">
+                    <source src="./assets/videos/pair-comparison/weak-pair-updated.mp4" type="video/mp4">
+                  </video>
+                  <span class="video-expand" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M 8 3 H 3 V 8 M 16 3 H 21 V 8 M 3 16 V 21 H 8 M 21 16 V 21 H 16"/>
+                    </svg>
+                  </span>
+                </button>
+              </figure>
+              <figure class="pair-card pair-card-strong">
+                <figcaption class="pair-card-heading">
+                  <h3 data-i18n="strong-pair-title">强 Pair Data</h3>
+                  <p class="pair-description" data-i18n="strong-pair-description">场景与时序逐帧对齐</p>
+                </figcaption>
+                <div class="pair-view-labels" aria-hidden="true">
+                  <span data-i18n="pair-human">人类数据</span>
+                  <span data-i18n="pair-robot">机器人数据</span>
+                </div>
+                <button
+                  class="pair-video-card js-open-video"
+                  type="button"
+                  data-video-src="./assets/videos/pair-comparison/strong-pair.mp4"
+                  data-video-title-zh="强 Pair Data"
+                  data-video-title-en="Strong Pair Data"
+                  aria-label="放大查看：强 Pair Data"
+                  aria-haspopup="dialog"
+                >
+                  <video autoplay muted loop playsinline preload="metadata" tabindex="-1" aria-hidden="true">
+                    <source src="./assets/videos/pair-comparison/strong-pair.mp4" type="video/mp4">
+                  </video>
+                  <span class="video-expand" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M 8 3 H 3 V 8 M 16 3 H 21 V 8 M 3 16 V 21 H 8 M 21 16 V 21 H 16"/>
+                    </svg>
+                  </span>
+                </button>
+              </figure>
             </div>
+            <figcaption class="media-caption" id="pair-comparison-caption" data-i18n="pair-comparison-caption">弱 Pair 与强 Pair 的对比 · 点击视频放大</figcaption>
+          </figure>
 
-            <p>
-              有了这些数据之后，我们训练出了新的模型：Psi-W0-Editing，一个通用的 ACWM for 通用数据转换。它能做到将各种人手数据转换成 pair 的机器人数据，也可以将机器人数据转换成 pair 的人类数据。
-            </p>
-            <p>
-              验证这个模型的泛化很简单：我们真正录一段人类在操作的视频，然后使用 Psi-W0-Editing 转换成机器人数据，再在真实的机器人上面进行 replay，看是否能够完成任务。结果这个模型的泛化能力非常好。我们可以做到大家任意拿自己的手机、相机等录一段人手操作的视频，都可以将其转化为各种机器人数据。我们将 Psi-W0-Editing 模型挂在了 <span class="inline-placeholder">在线试用页面（链接待补充）</span> 上，欢迎大家试用。
-            </p>
-            <p>
-              有了这个能力，对于一条人类数据，我们可以直接通过 Psi-W0-Editing 将其转成机器人的数据，不管是 visual 上还是 dynamic 上都是完全 align 的。然后拿这个数据进行训练，就实现了前面说的后训练只使用人类数据，不需要任何 real2sim、轨迹优化、强化学习这些操作。我们在真实落地场景、复杂泛化场景和高自由度手灵巧操作上都进行了验证。
-            </p>
-            <!-- Generalization demo videos will be added later. -->
-          </div>
+          <p>
+            具身智能不能只做预训练。具身区别于以前非标自动化的核心就在于希望能够把部署成本降至最低，这个是基模在产品上的商业价值所在。因此我们需要训练基础模型，来降低后训练 few-shot 所需的数据量。但是，直接 zero-shot 到客户现场的基础模型，短期以内很难出现，因为客户现场所需的 SKU 和节拍都太定制化了，做过落地的都清楚很难通过别的数据直接做 work。因此，后训练在很长的一段时间内都是必要的组件。
+          </p>
+          <p>
+            我们开发了一套基于灵巧手的后训练 HIL 与 RL 框架，可以在基础模型的基础上通过非常少量的数据进行微调后完成复杂任务，并在部署时实时收集失败案例，回流数据，提高模型的能力。我们以手机盒装配任务为例，这是一个步骤非常多且要求非常精细的任务，直接 from scratch 用模仿学习训练之后的成功率非常低。而通过我们的 HIL 与后训练 RL 框架，经过几轮迭代之后可以将成功率提高到 99% 的程度，并且只需要花费 1-2 个工作日。该方案同时也部署在了实际的客户现场，来解决各种复杂的 corner case。
+          </p>
 
-          <div class="lang-panel" data-lang="en">
-            <p class="kicker">Chapter 3</p>
-            <h2>Scaling Pair Data</h2>
-            <p>
-              Using pair data between human hands and robot hands for model training is not a new topic. Many pre-training works have shown that selecting human and robot demonstrations with similar actions can help models understand mixed human and robot data. However, most of these methods use retrieval to find the most similar actions from large datasets; they are not truly paired data. Data generated through image inpainting and simulated robot compositing may suffer from distorted collision relationships and complex occlusions, but the more fundamental issue is that its actions still come from human data, so the dynamic embodiment gap remains.
-            </p>
-            <p>
-              Once we understood the reverse formulation above, we used Psi-W0 in reverse: starting from real robot data, we generate the corresponding human-hand data and produce large amounts of high-quality pair data.
-            </p>
-
-            <div class="media-block">
-              <div
-                class="video-carousel"
-                data-video-carousel
-                data-video-base="./assets/videos/pair"
-                data-video-count="6"
-                tabindex="0"
-                aria-label="Pair data video carousel"
-              ></div>
-              <p class="media-caption">High-quality paired videos of robot hands and human hands.</p>
+          <figure class="media-block postrl-gallery" id="postrl-demos" aria-labelledby="postrl-caption">
+            <div class="postrl-row postrl-row-featured">
+              <button
+                class="postrl-video-card js-open-video"
+                type="button"
+                data-video-src="./assets/videos/postrl/5.mp4"
+                data-video-title-zh="手机盒装配"
+                data-video-title-en="Phone-box assembly"
+                aria-label="放大查看：手机盒装配"
+                aria-haspopup="dialog"
+              >
+                <video autoplay muted loop playsinline preload="metadata" tabindex="-1" aria-hidden="true">
+                  <source src="./assets/videos/postrl/5.mp4" type="video/mp4">
+                </video>
+                <span class="video-expand" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M 8 3 H 3 V 8 M 16 3 H 21 V 8 M 3 16 V 21 H 8 M 21 16 V 21 H 16"/>
+                  </svg>
+                </span>
+              </button>
+              <button
+                class="postrl-video-card js-open-video"
+                type="button"
+                data-video-src="./assets/videos/postrl/4-cropped.mp4"
+                data-video-title-zh="实验操作"
+                data-video-title-en="Laboratory tasks"
+                aria-label="放大查看：实验操作"
+                aria-haspopup="dialog"
+              >
+                <video autoplay muted loop playsinline preload="metadata" tabindex="-1" aria-hidden="true">
+                  <source src="./assets/videos/postrl/4-cropped.mp4" type="video/mp4">
+                </video>
+                <span class="video-expand" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M 8 3 H 3 V 8 M 16 3 H 21 V 8 M 3 16 V 21 H 8 M 21 16 V 21 H 16"/>
+                  </svg>
+                </span>
+              </button>
             </div>
-
-            <p>
-              With this data, we trained a new model: Psi-W0-Editing, a general ACWM for data conversion. It can convert various kinds of human-hand data into paired robot data, and it can also convert robot data into paired human data.
-            </p>
-            <p>
-              Evaluating the model's generalization is straightforward: we record a real human manipulation video, convert it into robot data using Psi-W0-Editing, and then replay it on a real robot to see whether the task can be completed. The model generalizes very well. Anyone can record a human manipulation video with a phone or camera and convert it into different kinds of robot data. We have deployed the Psi-W0-Editing model on an <span class="inline-placeholder">online demo page (link to be added)</span>, and welcome everyone to try it.
-            </p>
-            <p>
-              With this capability, for any human data trajectory, we can directly convert it into robot data with Psi-W0-Editing. Both the visual side and the dynamic side are fully aligned. Training on this converted data realizes the human-only post-training setting described above, without any real2sim, trajectory optimization, or reinforcement learning. We have validated this in real deployment scenarios, complex generalization scenarios, and high-DoF dexterous hand manipulation.
-            </p>
-            <!-- Generalization demo videos will be added later. -->
+            <div class="postrl-row postrl-row-secondary">
+              <button
+                class="postrl-video-card js-open-video"
+                type="button"
+                data-video-src="./assets/videos/postrl/1.mp4"
+                data-video-title-zh="纸箱操作"
+                data-video-title-en="Carton handling"
+                aria-label="放大查看：纸箱操作"
+                aria-haspopup="dialog"
+              >
+                <video autoplay muted loop playsinline preload="metadata" tabindex="-1" aria-hidden="true">
+                  <source src="./assets/videos/postrl/1.mp4" type="video/mp4">
+                </video>
+                <span class="video-expand" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M 8 3 H 3 V 8 M 16 3 H 21 V 8 M 3 16 V 21 H 8 M 21 16 V 21 H 16"/>
+                  </svg>
+                </span>
+              </button>
+              <button
+                class="postrl-video-card js-open-video"
+                type="button"
+                data-video-src="./assets/videos/postrl/2.mp4"
+                data-video-title-zh="设备操作"
+                data-video-title-en="Equipment manipulation"
+                aria-label="放大查看：设备操作"
+                aria-haspopup="dialog"
+              >
+                <video autoplay muted loop playsinline preload="metadata" tabindex="-1" aria-hidden="true">
+                  <source src="./assets/videos/postrl/2.mp4" type="video/mp4">
+                </video>
+                <span class="video-expand" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M 8 3 H 3 V 8 M 16 3 H 21 V 8 M 3 16 V 21 H 8 M 21 16 V 21 H 16"/>
+                  </svg>
+                </span>
+              </button>
+              <button
+                class="postrl-video-card js-open-video"
+                type="button"
+                data-video-src="./assets/videos/postrl/3.mp4"
+                data-video-title-zh="电子器件操作"
+                data-video-title-en="Electronics manipulation"
+                aria-label="放大查看：电子器件操作"
+                aria-haspopup="dialog"
+              >
+                <video autoplay muted loop playsinline preload="metadata" tabindex="-1" aria-hidden="true">
+                  <source src="./assets/videos/postrl/3.mp4" type="video/mp4">
+                </video>
+                <span class="video-expand" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M 8 3 H 3 V 8 M 16 3 H 21 V 8 M 3 16 V 21 H 8 M 21 16 V 21 H 16"/>
+                  </svg>
+                </span>
+              </button>
+              <button
+                class="postrl-video-card js-open-video"
+                type="button"
+                data-video-src="./assets/videos/postrl/6.mp4"
+                data-video-title-zh="布料操作"
+                data-video-title-en="Cloth manipulation"
+                aria-label="放大查看：布料操作"
+                aria-haspopup="dialog"
+              >
+                <video autoplay muted loop playsinline preload="metadata" tabindex="-1" aria-hidden="true">
+                  <source src="./assets/videos/postrl/6.mp4" type="video/mp4">
+                </video>
+                <span class="video-expand" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M 8 3 H 3 V 8 M 16 3 H 21 V 8 M 3 16 V 21 H 8 M 21 16 V 21 H 16"/>
+                  </svg>
+                </span>
+              </button>
+              <button
+                class="postrl-video-card js-open-video"
+                type="button"
+                data-video-src="./assets/videos/postrl/7.mp4"
+                data-video-title-zh="烹饪操作"
+                data-video-title-en="Cooking tasks"
+                aria-label="放大查看：烹饪操作"
+                aria-haspopup="dialog"
+              >
+                <video autoplay muted loop playsinline preload="metadata" tabindex="-1" aria-hidden="true">
+                  <source src="./assets/videos/postrl/7.mp4" type="video/mp4">
+                </video>
+                <span class="video-expand" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M 8 3 H 3 V 8 M 16 3 H 21 V 8 M 3 16 V 21 H 8 M 21 16 V 21 H 16"/>
+                  </svg>
+                </span>
+              </button>
+            </div>
+            <figcaption class="media-caption" id="postrl-caption" data-i18n="postrl-caption">泛化 3C 盒、复杂长程任务与高自由度灵巧手操作展示 · 点击视频放大</figcaption>
+          </figure>
           </div>
         </section>
 
-        <section class="content-block" id="future" data-toc="What We Can Learn">
-          <div class="lang-panel is-active" data-lang="zh">
-            <p class="kicker">Chapter 4</p>
-            <h2>What We Can Learn</h2>
-            <p>
-              这只是刚刚开始。我们对 pair data 的研究始于如何只使用人类数据进行后训练，这一部分我们可以认为已经是 work 了的。但这不代表传统的 pose estimation 不重要，相反，作为 ACWM 的输入，相关人类数据 action 的精度仍然能起到非常重要的作用。
-            </p>
-            <p>
-              对比于那种直接将人类数据和机器人数据一股脑扔到模型里混训的方法，这种高质量 pair data 更像是显式地将机器人数据和人类数据做了次对齐。这就像不同机器人的 action space 有关节空间的，有笛卡尔坐标空间的，大家已经基本认为真正效果好的模型需要将 action space 统一到一个空间下面，而高质量的 pair data 也是起到一个类似的作用，因此对于预训练也会有帮助。
-            </p>
-            <p>
-              下一步，我们会将 pair data scaling 到预训练的规模，让模型真正学会如何理解人手数据和机器人数据之间的差异，这部分是下一代基础模型核心的一部分。同时，这也证明了只使用人类数据是能够训练出模型来完成复杂任务的。但是我们不止于此，我们的目标是将人类数据的质量拉齐到和真机数据一样，甚至超越真机数据。我们确信，高质量的 pair data 是沟通这两种数据之间的桥梁，而我们找到了一种高效 scaling 它的方法。我们将会将相关技术用于预训练和人类数据数据治理，真正解放出人类数据的能力！
-            </p>
-          </div>
+        <section class="content-block" id="pair-data" data-toc="Scaling Pair Data For Data Alignment">
+          <div class="section-copy">
+          <p class="kicker">Chapter 2</p>
+          <h2>2. Scaling Pair Data For Data Alignment</h2>
+          <p>
+            最近，人类数据成为了大多数人的研究对象。但是，如何将人类数据的质量提高到和真实机器人一样，如何将人类数据往机器人数据进行对齐，是使用人类数据最核心的问题。长期以来，人类数据被认为只能用于预训练。大多数研究这方面的工作会先用人类数据进行大规模预训练，接着使用真机数据进行后训练来完成任务。
+          </p>
+          <p>
+            但是，这种一股脑将人类数据塞进模型里的做法是非常粗暴的。对于某一个固定的评测环境来说，当模型拿高质量数据训练了之后，你再加入其他低质量的数据，反而对模型是有害的。这是因为这时候对于模型来说，低质量数据带来的噪声多于信息量，因此整个效果反而会下降。所以，大部分直接将人类数据加入预训练中的方法难以回答这个问题，因为人类数据的信噪比远低于真机数据。试想一下，假如你采集了一批某任务的人类数据，你拿这个数据都训不出可以完成该任务的模型来，你怎么保证将它加入模型里面会对这个任务有比较大的帮助呢？
+          </p>
+          <p>
+            因此，大多数人类数据的预训练只能在 high-level 层面上有一些指导，对于真正机器人操作起到的作用非常有限，而具身最关键的就是如何补足操作模态的数据。给我的感觉有点像当时为什么做很多 Zero-Shot Sim2Real 工作的理由：很多时候做 Zero-Shot 而不是 Few-Shot，是为了验证仿真的有效性。如果纯用仿真数据训练出的模型效果不好，大概率这个数据质量或仿真器参数是有问题的。
+          </p>
+          <p>
+            所以人类数据也是一样的，能直接训练出模型的人类数据，才是质量最高的人类数据，而这种数据才是我们想要拿来做预训练使用的。因此我们认为，对于人类数据预训练来说，搭建一套人类数据质量分析方法，来衡量人类数据的有效性和质量是非常重要的。我们搭建了两个测试方法：一是将数据直接在机器人上进行 replay 轨迹，看能否完成同样的任务；二是用转换完的数据用于后训练，训练完的模型能泛化地完成相关任务。我们使用强 pair data 训练出来的数据转换器，能够直接将人类数据转换成机器人数据，完成数据对齐，并较好地完成上面两个测试。
+          </p>
+          <p>
+            下面介绍一下业内使用人类数据后训练的一些方法，并给出我们是怎么使用强 pair data 完成这一点的。
+          </p>
 
-          <div class="lang-panel" data-lang="en">
-            <p class="kicker">Chapter 4</p>
-            <h2>What We Can Learn</h2>
-            <p>
-              This is only the beginning. Our study of pair data began with the question of how to conduct post-training using human data alone, and we now believe this part is already working. But this does not mean traditional pose estimation is unimportant. On the contrary, as input to the ACWM, the accuracy of human-data actions still plays a critical role.
-            </p>
-            <p>
-              Compared with directly mixing human data and robot data in a model, high-quality pair data is more like explicitly aligning robot data and human data. This is similar to the action spaces of different robots: some are defined in joint space, while others are defined in Cartesian space. The field increasingly agrees that strong models need to unify action spaces into a shared representation. High-quality pair data plays a similar role, and therefore can also benefit pre-training.
-            </p>
-            <p>
-              Next, we will scale pair data to the pre-training level, allowing models to truly understand the differences between human-hand data and robot data. This will become a core component of the next generation of foundation models. At the same time, it proves that human data alone can train models capable of complex tasks. But our goal goes further: we want to bring the quality of human data up to the level of real-robot data, and eventually surpass it. We are confident that high-quality pair data is the bridge between the two data modalities, and we have found an efficient way to scale it. We will apply this technology to pre-training and human data governance, and truly unlock the potential of human data.
-            </p>
+          <p>
+            虽然是少数，但是学术界也已经慢慢有相关的研究出现。和 sim2real gap 类似，只使用人类数据进行训练的 embodiment gap 也可以拆分成 2 个具体的 gap：
+          </p>
+          <ul class="gap-list">
+            <li>
+              <strong>Visual Embodiment Gap</strong>
+              <span>人类数据无论是戴着手套，还是裸手，视觉上都会和机器人推理时差得比较大。这里的差异不只是视频里人手和机器人像素上的差别，还包括相机参数、环境变化等。</span>
+            </li>
+            <li>
+              <strong>Dynamic Embodiment Gap</strong>
+              <span>人类数据是用人手对物体进行操作，action 通常是通过设备或者视觉算法来获得。它和直接的机器人数据会有三种误差：第一种是手部姿态估计的传感器或者视觉估计误差，第二种是由于人手和机器人关节不一样的运动学误差，第三种是人手的物理参数和机器人物理参数的误差，例如手的摩擦力和机器人的摩擦力不一样。</span>
+            </li>
+          </ul>
+          <p>
+            所有的纯人类数据训练方案基本都是围绕着怎么解决上面两个问题出发的。一部分已有的方案可以总结为对人类数据进行 real2sim 重建到仿真器中，通过轨迹优化或强化学习等方法训练出模型，然后直接 sim2real。这套方案最早是很多做 Sim2Real 工作的延伸，问题有两个：一是 real2sim 技术本身也比较难 scale up，二是还是会面临 sim2real gap 的问题。
+          </p>
+          <p>
+            还有的工作不走在仿真器中训练模型然后 sim2real 的路线，而是将仿真器用来做类似数据处理的方法来解决 Embodiment Gap。对于 Visual Embodiment Gap，一般的做法是先分割，再 inpainting，然后再把渲染的机器人贴上去。对于 Dynamic Embodiment Gap，类似上面的方法用轨迹优化或强化学习进行处理，最后得到更好的数据来训练一个 policy。
+          </p>
+          <p>
+            这套方案和上一个方案最主要的区别是，不是在仿真器里训模型再 sim2real，而是用仿真做数据处理，然后再用模仿学习训一个 visuomotor 的 policy。但是同样会面临两个问题：一是 real2sim 技术本身难 scale up，二是图像 inpainting 这一套视觉处理的管线有天生缺陷，很难处理复杂的关系，例如遮挡等。例如一部分工作能把人手换成机械手，但由于深度估计问题，现有的传感器精度无法区分手上的手指与物体的遮挡关系，因此只能保留穿模的视觉效果。而对于模型来说，这些 interaction 的信息才是最重要的。
+          </p>
+
+          <p>
+            因此，这个方向基本长期只能做一些比较简单且定制化的任务，以致于很多人认为纯靠人类数据是无法训练出操作比较复杂的模型的。我们团队研究这个方向非常早，基本上所有方法我们都尝试过。最后我们通过用世界模型代替仿真器的方式，通过十万小时规模的人类数据进行预训练，我们的 Psi-W0 可以代替上面方法中仿真器的作用，通过在仿真器里做强化学习的方式，将一条人手轨迹优化成可执行的机器人轨迹，完成人手数据到机器人数据的转换。
+          </p>
+          <p>
+            本质上这一套方案还是沿用了之前的思想，只不过用世界模型来代替了传统的仿真器，好处是上面的各种 sim2real 和难以 scale up 的问题可以绕过去。到这算是解决了一部分问题，但接下来这一套方案会比较重，又需要 Policy 和 World Model 相互 rollout，又需要强化学习做微调。因此，我们将通过 Psi-W0 转换完的强 pair data 收集起来，将整个流程进行蒸馏，来直接训练人类数据到机器人数据的对齐转换模型。
+          </p>
+          <p>
+            但是这样还是比较慢。后来我们思考，这一套，包括之前的方法麻烦在于本质上是因为：对于一条已有的人类数据，我们需要凭空造出与其对应的机器人数据，所以才需要各种强化学习、轨迹优化之类的方法来减少 embodiment gap。但是反过来想，那为什么不能从已有的机器人数据出发，造出对应的人类数据呢？机器人数据无论是 visual 还是 dynamic，都是可以直接用的。
+          </p>
+          <p>
+            如果我们能获得大量的和真机数据匹配的人类数据，然后训一个模型，输入是人手的数据，输出是匹配的机器人的图像和 action，就可以直接做到纯使用人类数据训练模型。想通了上面的逆向思维后，我们逆向使用 Psi-W0，从真正的机器人数据出发逆向生成对应的人手的数据，直接产生高质量的 pair data。
+          </p>
+
+          <figure class="media-block multi-pair-gallery" id="multi-pair-demos" aria-labelledby="multi-pair-caption">
+            <div class="multi-pair-grid">
+              <button
+                class="multi-pair-video-card js-open-video"
+                type="button"
+                data-video-src="./assets/videos/multi_pair_clean/20260916-202514.977-0.mp4"
+                data-video-title-zh="机器手—人手配对示例 1"
+                data-video-title-en="Robot–human paired example 1"
+                aria-label="放大查看：机器手—人手配对示例 1"
+                aria-haspopup="dialog"
+              >
+                <video autoplay muted loop playsinline preload="metadata" poster="./assets/videos/multi_pair_clean/20260916-202514.977-0-poster.jpg" tabindex="-1" aria-hidden="true">
+                  <source src="./assets/videos/multi_pair_clean/20260916-202514.977-0.mp4" type="video/mp4">
+                </video>
+                <span class="video-expand" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M 8 3 H 3 V 8 M 16 3 H 21 V 8 M 3 16 V 21 H 8 M 21 16 V 21 H 16"/>
+                  </svg>
+                </span>
+              </button>
+              <button
+                class="multi-pair-video-card js-open-video"
+                type="button"
+                data-video-src="./assets/videos/multi_pair_clean/20260916-202514.977-1.mp4"
+                data-video-title-zh="机器手—人手配对示例 2"
+                data-video-title-en="Robot–human paired example 2"
+                aria-label="放大查看：机器手—人手配对示例 2"
+                aria-haspopup="dialog"
+              >
+                <video autoplay muted loop playsinline preload="metadata" poster="./assets/videos/multi_pair_clean/20260916-202514.977-1-poster.jpg" tabindex="-1" aria-hidden="true">
+                  <source src="./assets/videos/multi_pair_clean/20260916-202514.977-1.mp4" type="video/mp4">
+                </video>
+                <span class="video-expand" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M 8 3 H 3 V 8 M 16 3 H 21 V 8 M 3 16 V 21 H 8 M 21 16 V 21 H 16"/>
+                  </svg>
+                </span>
+              </button>
+              <button
+                class="multi-pair-video-card js-open-video"
+                type="button"
+                data-video-src="./assets/videos/multi_pair_clean/20260916-202514.977-3.mp4"
+                data-video-title-zh="机器手—人手配对示例 3"
+                data-video-title-en="Robot–human paired example 3"
+                aria-label="放大查看：机器手—人手配对示例 3"
+                aria-haspopup="dialog"
+              >
+                <video autoplay muted loop playsinline preload="metadata" poster="./assets/videos/multi_pair_clean/20260916-202514.977-3-poster.jpg" tabindex="-1" aria-hidden="true">
+                  <source src="./assets/videos/multi_pair_clean/20260916-202514.977-3.mp4" type="video/mp4">
+                </video>
+                <span class="video-expand" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M 8 3 H 3 V 8 M 16 3 H 21 V 8 M 3 16 V 21 H 8 M 21 16 V 21 H 16"/>
+                  </svg>
+                </span>
+              </button>
+              <button
+                class="multi-pair-video-card js-open-video"
+                type="button"
+                data-video-src="./assets/videos/multi_pair_clean/20260916-202514.977-4.mp4"
+                data-video-title-zh="机器手—人手配对示例 4"
+                data-video-title-en="Robot–human paired example 4"
+                aria-label="放大查看：机器手—人手配对示例 4"
+                aria-haspopup="dialog"
+              >
+                <video autoplay muted loop playsinline preload="metadata" poster="./assets/videos/multi_pair_clean/20260916-202514.977-4-poster.jpg" tabindex="-1" aria-hidden="true">
+                  <source src="./assets/videos/multi_pair_clean/20260916-202514.977-4.mp4" type="video/mp4">
+                </video>
+                <span class="video-expand" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M 8 3 H 3 V 8 M 16 3 H 21 V 8 M 3 16 V 21 H 8 M 21 16 V 21 H 16"/>
+                  </svg>
+                </span>
+              </button>
+              <button
+                class="multi-pair-video-card js-open-video"
+                type="button"
+                data-video-src="./assets/videos/multi_pair_clean/20260916-202514.977-5.mp4"
+                data-video-title-zh="机器手—人手配对示例 5"
+                data-video-title-en="Robot–human paired example 5"
+                aria-label="放大查看：机器手—人手配对示例 5"
+                aria-haspopup="dialog"
+              >
+                <video autoplay muted loop playsinline preload="metadata" poster="./assets/videos/multi_pair_clean/20260916-202514.977-5-poster.jpg" tabindex="-1" aria-hidden="true">
+                  <source src="./assets/videos/multi_pair_clean/20260916-202514.977-5.mp4" type="video/mp4">
+                </video>
+                <span class="video-expand" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M 8 3 H 3 V 8 M 16 3 H 21 V 8 M 3 16 V 21 H 8 M 21 16 V 21 H 16"/>
+                  </svg>
+                </span>
+              </button>
+              <button
+                class="multi-pair-video-card js-open-video"
+                type="button"
+                data-video-src="./assets/videos/multi_pair_clean/task-16t_HC0AZ5_train_00287_388190_vol_3tl598u6gs8c_0_141.mp4"
+                data-video-title-zh="机器手—人手配对示例 6"
+                data-video-title-en="Robot–human paired example 6"
+                aria-label="放大查看：机器手—人手配对示例 6"
+                aria-haspopup="dialog"
+              >
+                <video autoplay muted loop playsinline preload="metadata" poster="./assets/videos/multi_pair_clean/task-16t_HC0AZ5_train_00287_388190_vol_3tl598u6gs8c_0_141-poster.jpg" tabindex="-1" aria-hidden="true">
+                  <source src="./assets/videos/multi_pair_clean/task-16t_HC0AZ5_train_00287_388190_vol_3tl598u6gs8c_0_141.mp4" type="video/mp4">
+                </video>
+                <span class="video-expand" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M 8 3 H 3 V 8 M 16 3 H 21 V 8 M 3 16 V 21 H 8 M 21 16 V 21 H 16"/>
+                  </svg>
+                </span>
+              </button>
+              <button
+                class="multi-pair-video-card js-open-video"
+                type="button"
+                data-video-src="./assets/videos/multi_pair_clean/task-40007t_OSD9WJ_train_00401_5473266_vol_ipspyh5fq1he_160_224.mp4"
+                data-video-title-zh="机器手—人手配对示例 7"
+                data-video-title-en="Robot–human paired example 7"
+                aria-label="放大查看：机器手—人手配对示例 7"
+                aria-haspopup="dialog"
+              >
+                <video autoplay muted loop playsinline preload="metadata" poster="./assets/videos/multi_pair_clean/task-40007t_OSD9WJ_train_00401_5473266_vol_ipspyh5fq1he_160_224-poster.jpg" tabindex="-1" aria-hidden="true">
+                  <source src="./assets/videos/multi_pair_clean/task-40007t_OSD9WJ_train_00401_5473266_vol_ipspyh5fq1he_160_224.mp4" type="video/mp4">
+                </video>
+                <span class="video-expand" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M 8 3 H 3 V 8 M 16 3 H 21 V 8 M 3 16 V 21 H 8 M 21 16 V 21 H 16"/>
+                  </svg>
+                </span>
+              </button>
+              <button
+                class="multi-pair-video-card js-open-video"
+                type="button"
+                data-video-src="./assets/videos/multi_pair_clean/task-40033t_J1S314_train_00401_1665877_vol_pjrahx3vwrh6_6_123.mp4"
+                data-video-title-zh="机器手—人手配对示例 8"
+                data-video-title-en="Robot–human paired example 8"
+                aria-label="放大查看：机器手—人手配对示例 8"
+                aria-haspopup="dialog"
+              >
+                <video autoplay muted loop playsinline preload="metadata" poster="./assets/videos/multi_pair_clean/task-40033t_J1S314_train_00401_1665877_vol_pjrahx3vwrh6_6_123-poster.jpg" tabindex="-1" aria-hidden="true">
+                  <source src="./assets/videos/multi_pair_clean/task-40033t_J1S314_train_00401_1665877_vol_pjrahx3vwrh6_6_123.mp4" type="video/mp4">
+                </video>
+                <span class="video-expand" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M 8 3 H 3 V 8 M 16 3 H 21 V 8 M 3 16 V 21 H 8 M 21 16 V 21 H 16"/>
+                  </svg>
+                </span>
+              </button>
+              <button
+                class="multi-pair-video-card js-open-video"
+                type="button"
+                data-video-src="./assets/videos/multi_pair_clean/task-40035t_AZSGU2_train_00101_1667989_vol_fsfxu2fzge40_0_568.mp4"
+                data-video-title-zh="机器手—人手配对示例 9"
+                data-video-title-en="Robot–human paired example 9"
+                aria-label="放大查看：机器手—人手配对示例 9"
+                aria-haspopup="dialog"
+              >
+                <video autoplay muted loop playsinline preload="metadata" poster="./assets/videos/multi_pair_clean/task-40035t_AZSGU2_train_00101_1667989_vol_fsfxu2fzge40_0_568-poster.jpg" tabindex="-1" aria-hidden="true">
+                  <source src="./assets/videos/multi_pair_clean/task-40035t_AZSGU2_train_00101_1667989_vol_fsfxu2fzge40_0_568.mp4" type="video/mp4">
+                </video>
+                <span class="video-expand" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M 8 3 H 3 V 8 M 16 3 H 21 V 8 M 3 16 V 21 H 8 M 21 16 V 21 H 16"/>
+                  </svg>
+                </span>
+              </button>
+            </div>
+            <figcaption class="media-caption" id="multi-pair-caption" data-i18n="multi-pair-caption">高质量机器手—人手配对视频 · 点击视频放大</figcaption>
+          </figure>
+
+          <p>
+            有了这些数据之后，我们可以直接训练一个带 action 的端到端人类数据到机器人数据的转换模型，直接将人类数据往机器人数据进行对齐。这些数据通过我们的模型转换后，再使用我上面说的两种验证方式验证，证明其可行性。从结果来看，经过我们模型转换完的人类数据都能直接在机器人上 replay 或训练模型；有一些特别复杂的任务哪怕无法直接完成，双手的轨迹基本都是大差不差的。
+          </p>
+          <p>
+            这是因为这个模型本身不是 policy，而是一个带 action 的视频编辑任务，加上整个机器人的动作空间其实是有限的，因此可以更容易地做到 Zero-Shot 的泛化。我们的效果已经可以做到大家任意拿自己的手机、相机等录一段人手操作的视频，都可以通过我们的管线将其转化为各种机器人数据。
+          </p>
+
+          <div class="media-placeholder" role="note">
+            <span class="media-placeholder-label">视频占位</span>
+            <span>插入一段直接录制数据，然后现场实时转换成机器人操作数据的视频</span>
+          </div>
+          </div>
+        </section>
+
+        <section class="content-block" id="icl" data-toc="In-Context Learning">
+          <div class="section-copy">
+          <p class="kicker">Chapter 3</p>
+          <h2>3. In-Context Learning</h2>
+          <p>
+            最近，一个非常火的概念是大家希望能够不需要重新训练微调的情况下，让人示范一遍，再将这个轨迹用类似 prompt 的形式加入到模型里面，来引导机器人完成之前完成不了的任务，就是现在很多的 In-Context Learning 或者 Test-Time Training 的方法。
+          </p>
+          <p>
+            它 make sense 的底层原理在于，直接训练一个可以在 anywhere 做 any task 的模型是很难的，但是训练一个看一遍示范然后能完成任务的模型是更容易的。和大语言模型不一样的是，机器人领域的 context 不是一段机器人的示教视频，而是一段人类示教视频。
+          </p>
+          <p>
+            但是，借助我们的强 pair data 模型，我们可以轻易地将人类数据转换成对应的机器人数据，更好地作为 prompt 输入到模型里面。因此，我们可以很容易地实现高效的 In-Context Learning，例如下面的视频，In-Context Learning（ICL）使机器人无需更新模型参数，就能基于上下文对新任务实现零样本泛化。机器人不必为每个新任务重新训练，而是通过文本提示或物理提示，推断该做什么、该如何做。更多的细节将在之后放出。
+          </p>
+          <figure class="media-block icl-showcase" id="icl-demo" data-icl-carousel aria-roledescription="carousel" aria-labelledby="icl-caption">
+            <div class="icl-stage">
+              <video
+                class="icl-player"
+                id="icl-player"
+                autoplay
+                muted
+                controls
+                playsinline
+                preload="metadata"
+                poster="./assets/videos/icl-demos/1.jpg"
+                aria-labelledby="icl-caption icl-position"
+              >
+                <source src="./assets/videos/icl-demos/1.mp4" type="video/mp4">
+              </video>
+            </div>
+            <div class="icl-controls">
+              <div class="icl-selection">
+                <span class="icl-current-label" data-i18n="icl-current-label">当前展示</span>
+                <span class="icl-position" id="icl-position" aria-live="polite" aria-atomic="true">01 / 04</span>
+              </div>
+              <div class="icl-navigation">
+                <button class="icl-nav-button" type="button" data-icl-prev aria-label="上一个 ICL 视频" aria-controls="icl-player">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>
+                </button>
+                <button class="icl-nav-button" type="button" data-icl-next aria-label="下一个 ICL 视频" aria-controls="icl-player">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="icl-thumbnails" role="group" aria-label="选择 ICL 展示视频">
+              <button class="icl-thumbnail is-active" type="button" data-icl-src="./assets/videos/icl-demos/1.mp4" data-icl-poster="./assets/videos/icl-demos/1.jpg" aria-label="播放 ICL 示例 01" aria-pressed="true" aria-controls="icl-player">
+                <img src="./assets/videos/icl-demos/1.jpg" width="480" height="270" alt="" loading="lazy" decoding="async">
+                <span class="icl-thumb-label">Demo 01</span>
+                <span class="icl-thumb-progress" aria-hidden="true"></span>
+              </button>
+              <button class="icl-thumbnail" type="button" data-icl-src="./assets/videos/icl-demos/3.mp4" data-icl-poster="./assets/videos/icl-demos/3.jpg" aria-label="播放 ICL 示例 02" aria-pressed="false" aria-controls="icl-player">
+                <img src="./assets/videos/icl-demos/3.jpg" width="480" height="270" alt="" loading="lazy" decoding="async">
+                <span class="icl-thumb-label">Demo 02</span>
+                <span class="icl-thumb-progress" aria-hidden="true"></span>
+              </button>
+              <button class="icl-thumbnail" type="button" data-icl-src="./assets/videos/icl-demos/4.mp4" data-icl-poster="./assets/videos/icl-demos/4.jpg" aria-label="播放 ICL 示例 03" aria-pressed="false" aria-controls="icl-player">
+                <img src="./assets/videos/icl-demos/4.jpg" width="480" height="270" alt="" loading="lazy" decoding="async">
+                <span class="icl-thumb-label">Demo 03</span>
+                <span class="icl-thumb-progress" aria-hidden="true"></span>
+              </button>
+              <button class="icl-thumbnail" type="button" data-icl-src="./assets/videos/icl-demos/2.mp4" data-icl-poster="./assets/videos/icl-demos/2.jpg" aria-label="播放 ICL 示例 04" aria-pressed="false" aria-controls="icl-player">
+                <img src="./assets/videos/icl-demos/2.jpg" width="480" height="270" alt="" loading="lazy" decoding="async">
+                <span class="icl-thumb-label">Demo 04</span>
+                <span class="icl-thumb-progress" aria-hidden="true"></span>
+              </button>
+            </div>
+            <figcaption class="media-caption" id="icl-caption" data-i18n="icl-caption">Psi-R2.5 In-Context Learning 展示 · 点击缩略图切换</figcaption>
+          </figure>
           </div>
         </section>
 
         <section class="content-block" id="closing" data-toc="Closing">
-          <div class="lang-panel is-active" data-lang="zh">
+          <div class="section-copy">
             <p class="kicker">Closing</p>
             <h2>Collaborate with Us</h2>
             <p>
@@ -347,21 +669,6 @@
             </p>
             <a class="back-to-top" href="#top">Back to top</a>
           </div>
-
-          <div class="lang-panel" data-lang="en">
-            <p class="kicker">Closing</p>
-            <h2>Collaborate with Us</h2>
-            <p>
-              If you are interested in collaborating, please reach out. We are especially excited to work with companies that are continuously scaling data collection.
-            </p>
-            <p>
-              We are also hiring. If you would like to join us, we would love to hear from you.
-            </p>
-            <p>
-              If you are interested in our work, potential collaborations, or any other questions, please write to market@psirobot.ai.
-            </p>
-            <a class="back-to-top" href="#top">Back to top</a>
-          </div>
         </section>
       </article>
     </main>
@@ -372,8 +679,8 @@
     <div class="video-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="video-modal-title">
       <div class="video-modal-header">
         <h2 id="video-modal-title">Demo Video</h2>
-        <button class="video-modal-close" type="button" data-close-modal aria-label="Close video">
-          Close
+        <button class="video-modal-close" type="button" data-close-modal aria-label="关闭视频">
+          关闭
         </button>
       </div>
       <div class="video-modal-body">
