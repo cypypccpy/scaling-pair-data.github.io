@@ -324,12 +324,18 @@ button {
   margin: 8px 0 12px;
   font-size: clamp(2.2rem, 3.5vw, 3.2rem);
   font-weight: 600;
+  line-height: 1.12;
 }
 
 .content-block p {
   max-width: 860px;
   margin: 0;
   font-size: 1.05rem;
+}
+
+.section-copy > .media-block,
+.section-copy > .architecture-figure {
+  margin-block: 1.9rem;
 }
 
 .content-block .kicker {
