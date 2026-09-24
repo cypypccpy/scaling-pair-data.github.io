@@ -13,6 +13,9 @@ const englishCopy = {
   read: "Start reading",
   watch: "Play Hero Clip",
   play: "Play",
+  "article-previous": "Previous",
+  "article-next": "Next",
+  "article-coming-soon": "Coming soon",
   "diagram-alt": "The two-level Psi-R2.5 architecture: the high-level planner (Vision Language Model) sends Subtext and Value to the low-level controller (World Action Model), which interacts with the environment through Action and learns from Feedback.",
   "multitask-caption": "Psi-R2.5 multi-task evaluation",
   "icl-caption": "Psi-R2.5 In-Context Learning demonstrations · Select a thumbnail to switch videos",
@@ -531,6 +534,9 @@ function setLanguage(lang) {
   });
 
   document.documentElement.lang = lang === "en" ? "en" : "zh-CN";
+  document.querySelector(".article-pagination")?.setAttribute(
+    "aria-label", lang === "en" ? "Article navigation" : "文章导航"
+  );
   if (architectureImage) {
     architectureImage.alt = lang === "en" ? englishCopy["diagram-alt"] : architectureAltZh;
   }
